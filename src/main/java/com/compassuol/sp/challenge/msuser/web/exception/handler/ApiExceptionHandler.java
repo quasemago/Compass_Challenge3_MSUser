@@ -2,6 +2,7 @@ package com.compassuol.sp.challenge.msuser.web.exception.handler;
 
 import com.compassuol.sp.challenge.msuser.domain.exception.UserDataIntegrityViolationException;
 import com.compassuol.sp.challenge.msuser.domain.exception.UserEntityNotFoundException;
+import com.compassuol.sp.challenge.msuser.infra.mqueue.exception.NotificationBadRequestException;
 import com.compassuol.sp.challenge.msuser.infra.openfeign.exception.AddressBadRequestException;
 import com.compassuol.sp.challenge.msuser.security.jwt.exception.JwtAuthenticationException;
 import com.compassuol.sp.challenge.msuser.web.dto.ErrorMessageDTO;
@@ -58,6 +59,14 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(AddressBadRequestException.class)
     public ResponseEntity<ErrorMessageDTO> handleAddressBadRequestException(RuntimeException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new ErrorMessageDTO(HttpStatus.BAD_REQUEST, ex.getMessage()));
+    }
+
+    @ExceptionHandler(NotificationBadRequestException.class)
+    public ResponseEntity<ErrorMessageDTO> handleNotificationBadRequestException(RuntimeException ex) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .contentType(MediaType.APPLICATION_JSON)

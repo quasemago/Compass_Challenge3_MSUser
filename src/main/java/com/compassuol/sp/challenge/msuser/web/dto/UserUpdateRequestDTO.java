@@ -29,8 +29,6 @@ public class UserUpdateRequestDTO {
     private LocalDate birthDate;
     @Email(message = "Email precisa estar no formato correto.")
     private String email;
-    @Pattern(regexp = "^[0-9]{5}-[0-9]{3}$", message = "CEP precisa estar no formato correto. (xxxxx-xxx)")
-    private String cep;
     @NotNull
     private Boolean active;
 }

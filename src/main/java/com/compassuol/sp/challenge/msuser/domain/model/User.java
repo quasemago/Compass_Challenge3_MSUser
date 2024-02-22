@@ -1,6 +1,7 @@
 package com.compassuol.sp.challenge.msuser.domain.model;
 
 import com.compassuol.sp.challenge.msuser.domain.enums.UserRole;
+import com.compassuol.sp.challenge.msuser.web.dto.AddressResponseDTO;
 import com.compassuol.sp.challenge.msuser.web.dto.UserResponseDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -43,8 +44,9 @@ public class User implements Serializable {
     @Email(message = "Email precisa estar no formato correto.")
     private String email;
 
-    @Column(name = "cep", nullable = false)
-    private String cep;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "address_id", nullable = false)
+    private Address address;
 
     @Column(name = "password", nullable = false)
     private String password;
@@ -56,13 +58,13 @@ public class User implements Serializable {
     @Enumerated(EnumType.STRING)
     private UserRole role = UserRole.ROLE_USER;
 
-    public User(String firstName, String lastName, String cpf, LocalDate birthDate, String email, String cep, String password, Boolean active) {
+    public User(String firstName, String lastName, String cpf, LocalDate birthDate, String email, Address address, String password, Boolean active) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.cpf = cpf;
         this.birthDate = birthDate;
         this.email = email;
-        this.cep = cep;
+        this.address = address;
         this.password = password;
         this.active = active;
     }
@@ -75,7 +77,13 @@ public class User implements Serializable {
                 this.cpf,
                 this.birthDate,
                 this.email,
-                this.cep,
+                new AddressResponseDTO(
+                        this.address.getStreet(),
+                        this.address.getNumber(),
+                        this.address.getComplement(),
+                        this.address.getCity(),
+                        this.address.getState(),
+                        this.address.getCep()),
                 this.active
         );
     }

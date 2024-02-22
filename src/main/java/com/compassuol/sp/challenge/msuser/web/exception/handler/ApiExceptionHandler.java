@@ -2,6 +2,7 @@ package com.compassuol.sp.challenge.msuser.web.exception.handler;
 
 import com.compassuol.sp.challenge.msuser.domain.exception.UserDataIntegrityViolationException;
 import com.compassuol.sp.challenge.msuser.domain.exception.UserEntityNotFoundException;
+import com.compassuol.sp.challenge.msuser.infra.openfeign.exception.AddressBadRequestException;
 import com.compassuol.sp.challenge.msuser.security.jwt.exception.JwtAuthenticationException;
 import com.compassuol.sp.challenge.msuser.web.dto.ErrorMessageDTO;
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,7 @@ public class ApiExceptionHandler {
                 .body(new ErrorMessageDTO(HttpStatus.CONFLICT, ex.getMessage()));
     }
 
-    @ExceptionHandler(UserEntityNotFoundException.class)
+    @ExceptionHandler({UserEntityNotFoundException.class})
     public ResponseEntity<ErrorMessageDTO> handleUserEntityNotFoundException(RuntimeException ex) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
@@ -53,6 +54,14 @@ public class ApiExceptionHandler {
                 .status(HttpStatus.FORBIDDEN)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(new ErrorMessageDTO(HttpStatus.FORBIDDEN, ex.getMessage()));
+    }
+
+    @ExceptionHandler(AddressBadRequestException.class)
+    public ResponseEntity<ErrorMessageDTO> handleAddressBadRequestException(RuntimeException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new ErrorMessageDTO(HttpStatus.BAD_REQUEST, ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)

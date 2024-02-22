@@ -2,10 +2,12 @@ package com.compassuol.sp.challenge.msuser.web.exception.handler;
 
 import com.compassuol.sp.challenge.msuser.domain.exception.UserDataIntegrityViolationException;
 import com.compassuol.sp.challenge.msuser.domain.exception.UserEntityNotFoundException;
+import com.compassuol.sp.challenge.msuser.security.jwt.exception.JwtAuthenticationException;
 import com.compassuol.sp.challenge.msuser.web.dto.ErrorMessageDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -35,6 +37,22 @@ public class ApiExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(new ErrorMessageDTO(HttpStatus.NOT_FOUND, ex.getMessage()));
+    }
+
+    @ExceptionHandler(JwtAuthenticationException.class)
+    public ResponseEntity<ErrorMessageDTO> handleJwtAuthenticationException(RuntimeException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new ErrorMessageDTO(HttpStatus.BAD_REQUEST, ex.getMessage()));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorMessageDTO> accessDeniedException(AccessDeniedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new ErrorMessageDTO(HttpStatus.FORBIDDEN, ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)

@@ -5,7 +5,8 @@ import com.compassuol.sp.challenge.msuser.domain.exception.UserDataIntegrityViol
 import com.compassuol.sp.challenge.msuser.domain.exception.UserEntityNotFoundException;
 import com.compassuol.sp.challenge.msuser.domain.model.User;
 import com.compassuol.sp.challenge.msuser.domain.repository.UserRepository;
-import com.compassuol.sp.challenge.msuser.web.dto.UserRequestDTO;
+import com.compassuol.sp.challenge.msuser.web.dto.UserCreateRequestDTO;
+import com.compassuol.sp.challenge.msuser.web.dto.UserUpdateRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,7 +20,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public User createUser(UserRequestDTO request) {
+    public User createUser(UserCreateRequestDTO request) {
         try {
             final User user = request.toModel();
             user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -36,7 +37,7 @@ public class UserService {
     }
 
     @Transactional()
-    public User updateUser(Long id, UserRequestDTO request) {
+    public User updateUser(Long id, UserUpdateRequestDTO request) {
         final User user = findUserById(id);
 
         if (user.getEmail().equals(request.getEmail())) {
@@ -53,7 +54,6 @@ public class UserService {
             user.setBirthDate(request.getBirthDate());
             user.setEmail(request.getEmail());
             user.setCep(request.getCep());
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
             user.setActive(request.getActive());
             return repository.saveAndFlush(user);
         } catch (DataIntegrityViolationException ex) {

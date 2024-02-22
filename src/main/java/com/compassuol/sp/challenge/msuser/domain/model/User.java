@@ -1,11 +1,9 @@
 package com.compassuol.sp.challenge.msuser.domain.model;
 
+import com.compassuol.sp.challenge.msuser.web.dto.UserResponseDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.validator.constraints.br.CPF;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -16,8 +14,8 @@ import java.util.Date;
 @Getter
 @Setter
 @Table(name = "users")
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +32,7 @@ public class User implements Serializable {
     private String cpf;
 
     @Column(name = "birth_date", nullable = false)
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date birthDate;
 
     @Column(name = "email", nullable = false, unique = true)
@@ -49,4 +47,29 @@ public class User implements Serializable {
 
     @Column(name = "active", nullable = false)
     private Boolean active;
+
+    public User(String firstName, String lastName, String cpf, Date birthDate, String email, String cep, String password, Boolean active) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.cpf = cpf;
+        this.birthDate = birthDate;
+        this.email = email;
+        this.cep = cep;
+        this.password = password;
+        this.active = active;
+    }
+
+    public UserResponseDTO toDTO() {
+        return new UserResponseDTO(
+                this.id,
+                this.firstName,
+                this.lastName,
+                this.cpf,
+                this.birthDate,
+                this.email,
+                this.cep,
+                this.password,
+                this.active
+        );
+    }
 }

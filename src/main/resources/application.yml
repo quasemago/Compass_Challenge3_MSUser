@@ -17,6 +17,15 @@ spring:
   mvc:
     format:
       date-time: iso
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+
+mq:
+  queues:
+    user-queue: ${CHALLENGE3_MQ_USER_QUEUE:user-queue}
 
 security:
   jwt:

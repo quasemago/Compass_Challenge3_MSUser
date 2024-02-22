@@ -1,5 +1,6 @@
 package com.compassuol.sp.challenge.msuser.domain.service;
 
+import com.compassuol.sp.challenge.msuser.domain.enums.UserRole;
 import com.compassuol.sp.challenge.msuser.domain.exception.UserDataIntegrityViolationException;
 import com.compassuol.sp.challenge.msuser.domain.exception.UserEntityNotFoundException;
 import com.compassuol.sp.challenge.msuser.domain.model.User;
@@ -65,5 +66,17 @@ public class UserService {
         final User user = findUserById(id);
         user.setPassword(passwordEncoder.encode(password));
         repository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public User findUserByEmail(String email) {
+        return repository.findByEmail(email)
+                .orElseThrow(() -> new UserEntityNotFoundException("Usuário informado com o e-mail {" + email + "} não encontrado."));
+    }
+
+    @Transactional(readOnly = true)
+    public UserRole findRoleByEmail(String email) {
+        return repository.findUserRoleByEmail(email)
+                .orElseThrow(() -> new UserEntityNotFoundException("Role do usuário com e-mail {" + email + "} informado não encontrado."));
     }
 }

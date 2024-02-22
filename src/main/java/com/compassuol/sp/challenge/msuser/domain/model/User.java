@@ -12,7 +12,7 @@ import org.hibernate.validator.constraints.br.CPF;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -37,7 +37,7 @@ public class User implements Serializable {
 
     @Column(name = "birth_date", nullable = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date birthDate;
+    private LocalDate birthDate;
 
     @Column(name = "email", nullable = false, unique = true)
     @Email(message = "Email precisa estar no formato correto.")
@@ -56,7 +56,7 @@ public class User implements Serializable {
     @Enumerated(EnumType.STRING)
     private UserRole role = UserRole.ROLE_USER;
 
-    public User(String firstName, String lastName, String cpf, Date birthDate, String email, String cep, String password, Boolean active) {
+    public User(String firstName, String lastName, String cpf, LocalDate birthDate, String email, String cep, String password, Boolean active) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.cpf = cpf;
@@ -76,7 +76,6 @@ public class User implements Serializable {
                 this.birthDate,
                 this.email,
                 this.cep,
-                this.password,
                 this.active
         );
     }

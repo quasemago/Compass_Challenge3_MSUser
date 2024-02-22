@@ -12,12 +12,12 @@ import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.br.CPF;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class UserRequestDTO {
+public class UserCreateRequestDTO {
     @NotBlank
     private String firstName;
     @NotBlank
@@ -27,7 +27,7 @@ public class UserRequestDTO {
     private String cpf;
     @NotNull
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date birthDate;
+    private LocalDate birthDate;
     @Email(message = "Email precisa estar no formato correto.")
     private String email;
     @Pattern(regexp = "^[0-9]{5}-[0-9]{3}$", message = "CEP precisa estar no formato correto. (xxxxx-xxx)")

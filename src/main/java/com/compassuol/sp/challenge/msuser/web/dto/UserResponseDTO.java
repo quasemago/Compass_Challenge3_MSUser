@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,9 +16,8 @@ public class UserResponseDTO {
     private String lastName;
     private String cpf;
     @JsonFormat(pattern = "dd/MM/yyyy")
-    private Date birthDate;
+    private LocalDate birthDate;
     private String email;
     private String cep;
-    private String password;
     private Boolean active;
 }

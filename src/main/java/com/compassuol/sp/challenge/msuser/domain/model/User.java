@@ -1,9 +1,13 @@
 package com.compassuol.sp.challenge.msuser.domain.model;
 
+import com.compassuol.sp.challenge.msuser.domain.enums.UserRole;
 import com.compassuol.sp.challenge.msuser.web.dto.UserResponseDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.validator.constraints.br.CPF;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -47,6 +51,10 @@ public class User implements Serializable {
 
     @Column(name = "active", nullable = false)
     private Boolean active;
+
+    @Column(name = "role", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private UserRole role = UserRole.ROLE_USER;
 
     public User(String firstName, String lastName, String cpf, Date birthDate, String email, String cep, String password, Boolean active) {
         this.firstName = firstName;

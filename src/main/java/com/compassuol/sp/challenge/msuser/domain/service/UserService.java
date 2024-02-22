@@ -5,11 +5,15 @@ import com.compassuol.sp.challenge.msuser.domain.exception.UserDataIntegrityViol
 import com.compassuol.sp.challenge.msuser.domain.exception.UserEntityNotFoundException;
 import com.compassuol.sp.challenge.msuser.domain.model.User;
 import com.compassuol.sp.challenge.msuser.domain.repository.UserRepository;
+import com.compassuol.sp.challenge.msuser.infra.mqueue.enums.EventType;
+import com.compassuol.sp.challenge.msuser.infra.mqueue.exception.NotificationBadRequestException;
+import com.compassuol.sp.challenge.msuser.infra.mqueue.publisher.UserRequestNotificationPublisher;
 import com.compassuol.sp.challenge.msuser.infra.openfeign.client.AddressClientConsumer;
 import com.compassuol.sp.challenge.msuser.infra.openfeign.exception.AddressBadRequestException;
 import com.compassuol.sp.challenge.msuser.web.dto.AddressResponseDTO;
 import com.compassuol.sp.challenge.msuser.web.dto.UserCreateRequestDTO;
 import com.compassuol.sp.challenge.msuser.web.dto.UserUpdateRequestDTO;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -23,6 +27,7 @@ public class UserService {
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
     private final AddressClientConsumer addressConsumer;
+    private final UserRequestNotificationPublisher notificationPublisher;
 
     @Transactional
     public User createUser(UserCreateRequestDTO request) {
@@ -51,9 +56,15 @@ public class UserService {
             user.setAddress(address.toModel());
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             user.setActive(request.getActive());
-            return repository.save(user);
+
+            final User createdUser = repository.save(user);
+            notificationPublisher.sendNotification(createdUser.getEmail(), EventType.CREATE);
+
+            return createdUser;
         } catch (DataIntegrityViolationException ex) {
             throw new UserDataIntegrityViolationException("Já existe um usuário com o e-mail ou CPF informado.");
+        } catch (JsonProcessingException ex) {
+            throw new NotificationBadRequestException("Não foi possível processar a notificação do evento de criação do usuário.");
         }
     }
 
@@ -81,17 +92,29 @@ public class UserService {
             user.setBirthDate(request.getBirthDate());
             user.setEmail(request.getEmail());
             user.setActive(request.getActive());
-            return repository.saveAndFlush(user);
+
+            final User updatedUser = repository.saveAndFlush(user);
+            notificationPublisher.sendNotification(updatedUser.getEmail(), EventType.CREATE);
+
+            return updatedUser;
         } catch (DataIntegrityViolationException ex) {
             throw new UserDataIntegrityViolationException("Já existe um usuário com o e-mail ou CPF informado.");
+        } catch (JsonProcessingException ex) {
+            throw new NotificationBadRequestException("Não foi possível processar a notificação do evento de atualização do usuário.");
         }
     }
 
     @Transactional
     public void updateUserPassword(Long id, String password) {
-        final User user = findUserById(id);
-        user.setPassword(passwordEncoder.encode(password));
-        repository.save(user);
+        try {
+            final User user = findUserById(id);
+            user.setPassword(passwordEncoder.encode(password));
+
+            repository.save(user);
+            notificationPublisher.sendNotification(user.getEmail(), EventType.UPDATE_PASSWORD);
+        } catch (JsonProcessingException ex) {
+            throw new NotificationBadRequestException("Não foi possível processar a notificação do evento de atualização do usuário.");
+        }
     }
 
     @Transactional(readOnly = true)

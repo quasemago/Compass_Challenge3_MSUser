@@ -94,7 +94,7 @@ public class UserService {
             user.setActive(request.getActive());
 
             final User updatedUser = repository.saveAndFlush(user);
-            notificationPublisher.sendNotification(updatedUser.getEmail(), EventType.CREATE);
+            notificationPublisher.sendNotification(updatedUser.getEmail(), EventType.UPDATE);
 
             return updatedUser;
         } catch (DataIntegrityViolationException ex) {

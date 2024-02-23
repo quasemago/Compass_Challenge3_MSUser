@@ -5,10 +5,7 @@ import com.compassuol.sp.challenge.msuser.web.dto.AddressResponseDTO;
 import com.compassuol.sp.challenge.msuser.web.dto.UserResponseDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.validator.constraints.br.CPF;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -21,6 +18,8 @@ import java.time.LocalDate;
 @Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
+@Builder
 public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -9,7 +9,6 @@ import com.compassuol.sp.challenge.msuser.web.dto.ErrorMessageDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -25,16 +24,16 @@ public class ApiExceptionHandler {
                 .body(new ErrorMessageDTO(HttpStatus.BAD_REQUEST, "Campo(s) inválido(s).", result));
     }
 
-    @ExceptionHandler({UserDataIntegrityViolationException.class})
-    public ResponseEntity<ErrorMessageDTO> handleDataIntegrityViolationException(RuntimeException ex) {
+    @ExceptionHandler(UserDataIntegrityViolationException.class)
+    public ResponseEntity<ErrorMessageDTO> handleDataIntegrityViolationException(UserDataIntegrityViolationException ex) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(new ErrorMessageDTO(HttpStatus.CONFLICT, ex.getMessage()));
     }
 
-    @ExceptionHandler({UserEntityNotFoundException.class})
-    public ResponseEntity<ErrorMessageDTO> handleUserEntityNotFoundException(RuntimeException ex) {
+    @ExceptionHandler(UserEntityNotFoundException.class)
+    public ResponseEntity<ErrorMessageDTO> handleUserEntityNotFoundException(UserEntityNotFoundException ex) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -42,23 +41,15 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(JwtAuthenticationException.class)
-    public ResponseEntity<ErrorMessageDTO> handleJwtAuthenticationException(RuntimeException ex) {
+    public ResponseEntity<ErrorMessageDTO> handleJwtAuthenticationException(JwtAuthenticationException ex) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(new ErrorMessageDTO(HttpStatus.BAD_REQUEST, ex.getMessage()));
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorMessageDTO> accessDeniedException(AccessDeniedException ex) {
-        return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(new ErrorMessageDTO(HttpStatus.FORBIDDEN, ex.getMessage()));
-    }
-
     @ExceptionHandler(AddressBadRequestException.class)
-    public ResponseEntity<ErrorMessageDTO> handleAddressBadRequestException(RuntimeException ex) {
+    public ResponseEntity<ErrorMessageDTO> handleAddressBadRequestException(AddressBadRequestException ex) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -66,7 +57,7 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(NotificationBadRequestException.class)
-    public ResponseEntity<ErrorMessageDTO> handleNotificationBadRequestException(RuntimeException ex) {
+    public ResponseEntity<ErrorMessageDTO> handleNotificationBadRequestException(NotificationBadRequestException ex) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .contentType(MediaType.APPLICATION_JSON)

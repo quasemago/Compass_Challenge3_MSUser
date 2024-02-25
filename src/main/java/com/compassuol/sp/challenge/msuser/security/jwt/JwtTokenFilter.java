@@ -23,10 +23,13 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         final String authorizationHeader = request.getHeader("Authorization");
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            final var tokenRequest = userDetailsService.resolveToken(authorizationHeader);
+            final var tokenRequest = userDetailsService.resolveToken(
+                    authorizationHeader.substring(7));
+
             if (tokenRequest != null) {
-                final var subject = tokenRequest.getPayload().getSubject();
+                final String subject = tokenRequest.getPayload().getSubject();
                 final var authToken = userDetailsService.getAuthorizationToken(subject);
+
                 if (authToken != null) {
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);

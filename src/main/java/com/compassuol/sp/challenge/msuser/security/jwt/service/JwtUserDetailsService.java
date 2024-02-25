@@ -10,7 +10,9 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,6 +35,14 @@ public class JwtUserDetailsService implements UserDetailsService {
     @Value("${security.jwt.token.expire-length:3600000}")
     private long EXPIRE_LENGTH = 3600000;
 
+    @Setter
+    private SecretKey encryptedSecretKey;
+
+    @PostConstruct
+    private void setup() {
+        encryptedSecretKey = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+    }
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         final User user = userService.findUserByEmail(email);
@@ -41,17 +51,13 @@ public class JwtUserDetailsService implements UserDetailsService {
 
     public JwtTokenDTO getTokenAuthenticated(String email) {
         final UserRole role = userService.findRoleByEmail(email);
-        return createAccessToken(email, role.getValue());
+        return createAccessToken(email, role.name().substring("ROLE_".length()));
     }
 
     public UsernamePasswordAuthenticationToken getAuthorizationToken(String subject) {
         final UserDetails userDetails = loadUserByUsername(subject);
         return UsernamePasswordAuthenticationToken
                 .authenticated(userDetails, null, userDetails.getAuthorities());
-    }
-
-    private SecretKey generateKey() {
-        return Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
     }
 
     public JwtTokenDTO createAccessToken(String email, String role) {
@@ -64,24 +70,16 @@ public class JwtUserDetailsService implements UserDetailsService {
                 .subject(email)
                 .issuedAt(issuedAt)
                 .expiration(expiration)
-                .signWith(generateKey())
+                .signWith(encryptedSecretKey)
                 .claim("role", role)
                 .compact();
         return new JwtTokenDTO(email, issuedAt, expiration, jwtToken);
     }
 
-    public Jws<Claims> resolveToken(String token) {
-        final String normalizedToken = token.contains("Bearer ")
-                ? token.substring("Bearer ".length())
-                : token;
-        try {
-            return Jwts.parser()
-                    .verifyWith(generateKey())
-                    .build()
-                    .parseSignedClaims(normalizedToken);
-        } catch (JwtException ex) {
-            //log.error(String.format("Invalid JWT Token - %s", ex.getMessage()));
-        }
-        return null;
+    public Jws<Claims> resolveToken(String token) throws JwtException {
+        return Jwts.parser()
+                .verifyWith(encryptedSecretKey)
+                .build()
+                .parseSignedClaims(token);
     }
 }

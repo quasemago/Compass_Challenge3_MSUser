@@ -57,17 +57,6 @@ public class User implements Serializable {
     @Enumerated(EnumType.STRING)
     private UserRole role = UserRole.ROLE_USER;
 
-    public User(String firstName, String lastName, String cpf, LocalDate birthDate, String email, Address address, String password, Boolean active) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.cpf = cpf;
-        this.birthDate = birthDate;
-        this.email = email;
-        this.address = address;
-        this.password = password;
-        this.active = active;
-    }
-
     public UserResponseDTO toDTO() {
         return new UserResponseDTO(
                 this.id,

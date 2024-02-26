@@ -16,7 +16,6 @@ import java.util.Optional;
 import static com.compassuol.sp.challenge.msuser.common.UserConstants.VALID_ADDRESS;
 import static com.compassuol.sp.challenge.msuser.common.UserUtils.mockValidUser;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -34,6 +33,8 @@ public class UserRepositoryTest {
     @Test
     public void findUserByEmail_WithExistingUser_ReturnsUser() {
         final User user = mockValidUser(VALID_ADDRESS);
+        user.setId(null);
+
         final Address savedAddress = testEntityManager.persistFlushFind(VALID_ADDRESS);
         user.setAddress(savedAddress);
 
@@ -41,7 +42,10 @@ public class UserRepositoryTest {
         final Optional<User> sutUser = repository.findByEmail(user.getEmail());
 
         assertThat(sutUser).isNotEmpty();
-        assertThat(sutUser.get()).isEqualTo(savedUser);
+        assertThat(sutUser.get().getId()).isEqualTo(savedUser.getId());
+        assertThat(sutUser.get().getEmail()).isEqualTo(savedUser.getEmail());
+        assertThat(sutUser.get().getAddress().getId()).isEqualTo(savedUser.getAddress().getId());
+        assertThat(sutUser.get().getAddress().getCep()).isEqualTo(savedUser.getAddress().getCep());
     }
 
     @Test
@@ -53,6 +57,8 @@ public class UserRepositoryTest {
     @Test
     public void findUserRoleByEmail_WithExistingUser_ReturnsUserRole() {
         final User user = mockValidUser(VALID_ADDRESS);
+        user.setId(null);
+
         final Address savedAddress = testEntityManager.persistFlushFind(VALID_ADDRESS);
         user.setAddress(savedAddress);
 

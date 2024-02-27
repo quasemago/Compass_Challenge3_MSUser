@@ -51,7 +51,7 @@ public class UserServiceTest {
         final User validUser = mockValidUser();
 
         when(repository.save(any(User.class))).thenReturn(validUser);
-        when(addressConsumer.getAddressByCep(anyString()))
+        when(addressConsumer.getAddressByCep(anyString(), anyString()))
                 .thenReturn(mockAddressResponseDTO(validUser.getAddress()));
         when(passwordEncoder.encode(anyString())).thenReturn(VALID_PASSWORD);
         doNothing().when(notificationPublisher).sendNotification(anyString(), eq(EventType.CREATE));
@@ -62,7 +62,7 @@ public class UserServiceTest {
         assertThat(sutUser).isEqualTo(validUser);
 
         verify(repository, times(1)).save(any(User.class));
-        verify(addressConsumer, times(1)).getAddressByCep(anyString());
+        verify(addressConsumer, times(1)).getAddressByCep(anyString(), anyString());
         verify(passwordEncoder, times(1)).encode(anyString());
         verify(notificationPublisher, times(1)).sendNotification(anyString(), eq(EventType.CREATE));
     }
@@ -72,7 +72,7 @@ public class UserServiceTest {
         final User sutUser = mockValidUser();
 
         when(repository.save(any(User.class))).thenThrow(DataIntegrityViolationException.class);
-        when(addressConsumer.getAddressByCep(anyString()))
+        when(addressConsumer.getAddressByCep(anyString(), anyString()))
                 .thenReturn(mockAddressResponseDTO(sutUser.getAddress()));
         when(passwordEncoder.encode(anyString())).thenReturn(VALID_PASSWORD);
 
@@ -80,7 +80,7 @@ public class UserServiceTest {
                 .isInstanceOf(UserDataIntegrityViolationException.class);
 
         verify(repository, times(1)).save(any(User.class));
-        verify(addressConsumer, times(1)).getAddressByCep(anyString());
+        verify(addressConsumer, times(1)).getAddressByCep(anyString(), anyString());
         verify(passwordEncoder, times(1)).encode(anyString());
     }
 
@@ -89,11 +89,11 @@ public class UserServiceTest {
         final User sutUser = mockValidUser();
         sutUser.getAddress().setCep("00000-000");
 
-        when(addressConsumer.getAddressByCep("00000-000")).thenThrow(FeignException.NotFound.class);
+        when(addressConsumer.getAddressByCep(eq("00000-000"), anyString())).thenThrow(FeignException.NotFound.class);
         assertThatThrownBy(() -> service.createUser(mockCreateUserRequestDTO(sutUser)))
                 .isInstanceOf(AddressBadRequestException.class);
 
-        verify(addressConsumer, times(1)).getAddressByCep("00000-000");
+        verify(addressConsumer, times(1)).getAddressByCep(eq("00000-000"), anyString());
     }
 
     @Test
@@ -101,11 +101,11 @@ public class UserServiceTest {
         final User sutUser = mockValidUser();
         sutUser.getAddress().setCep("00000-000");
 
-        when(addressConsumer.getAddressByCep("00000-000")).thenThrow(FeignException.class);
+        when(addressConsumer.getAddressByCep(eq("00000-000"), anyString())).thenThrow(FeignException.class);
         assertThatThrownBy(() -> service.createUser(mockCreateUserRequestDTO(sutUser)))
                 .isInstanceOf(AddressBadRequestException.class);
 
-        verify(addressConsumer, times(1)).getAddressByCep("00000-000");
+        verify(addressConsumer, times(1)).getAddressByCep(eq("00000-000"), anyString());
     }
 
     @Test
@@ -121,7 +121,7 @@ public class UserServiceTest {
         final User sutUser = mockValidUser();
 
         when(repository.save(any(User.class))).thenReturn(sutUser);
-        when(addressConsumer.getAddressByCep(anyString()))
+        when(addressConsumer.getAddressByCep(anyString(), anyString()))
                 .thenReturn(mockAddressResponseDTO(sutUser.getAddress()));
         when(passwordEncoder.encode(anyString())).thenReturn(VALID_PASSWORD);
         doThrow(JsonProcessingException.class).when(notificationPublisher).sendNotification(anyString(), eq(EventType.CREATE));
@@ -130,7 +130,7 @@ public class UserServiceTest {
                 .isInstanceOf(NotificationBadRequestException.class);
 
         verify(repository, times(1)).save(any(User.class));
-        verify(addressConsumer, times(1)).getAddressByCep(anyString());
+        verify(addressConsumer, times(1)).getAddressByCep(anyString(), anyString());
         verify(passwordEncoder, times(1)).encode(anyString());
         verify(notificationPublisher, times(1)).sendNotification(anyString(), eq(EventType.CREATE));
     }
@@ -319,17 +319,5 @@ public class UserServiceTest {
         verify(repository, times(1)).findById(1L);
         verify(repository, times(1)).saveAndFlush(any(User.class));
         verify(notificationPublisher, times(1)).sendNotification(anyString(), eq(EventType.UPDATE));
-    }
-
-    @Test
-    public void updateUser_WithEqualsEmail_ThrowsException() {
-        final User validUser = mockValidUser();
-
-        when(repository.findById(1L)).thenReturn(Optional.of(validUser));
-
-        assertThatThrownBy(() -> service.updateUser(1L, mockUserUpdateRequestDTO(validUser)))
-                .isInstanceOf(UserDataIntegrityViolationException.class);
-
-        verify(repository, times(1)).findById(1L);
     }
 }

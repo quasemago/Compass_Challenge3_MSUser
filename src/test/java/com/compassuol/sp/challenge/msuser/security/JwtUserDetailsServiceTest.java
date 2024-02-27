@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 
 import static com.compassuol.sp.challenge.msuser.common.LoginUtils.VALID_JWT_SECRETKEY;
 import static com.compassuol.sp.challenge.msuser.common.UserUtils.mockValidUser;
@@ -31,7 +32,7 @@ public class JwtUserDetailsServiceTest {
 
     @BeforeEach
     public void setup() {
-        service.setEncryptedSecretKey(Keys.hmacShaKeyFor(VALID_JWT_SECRETKEY.getBytes(StandardCharsets.UTF_8)));
+        JwtUserDetailsService.setEncryptedSecretKey(Keys.hmacShaKeyFor(VALID_JWT_SECRETKEY.getBytes(StandardCharsets.UTF_8)));
     }
 
     @Test
@@ -74,12 +75,13 @@ public class JwtUserDetailsServiceTest {
     public void createAccessToken_WithValidData_ReturnsJwtTokenResponse() {
         final User validUser = mockValidUser();
         final String roleName = validUser.getRole().name().substring("ROLE_".length());
+        final Date now = new Date();
+        final Date expiration = new Date(now.getTime() + 120000);
 
-        var sut = service.createAccessToken(validUser.getEmail(), roleName);
+        var sut = JwtUserDetailsService.createAccessToken(now, expiration, validUser.getEmail(), roleName);
 
         assertThat(sut).isNotNull();
-        assertThat(sut.getAccessToken()).isNotNull();
-        assertThat(sut.getEmail()).isEqualTo(validUser.getEmail());
+        assertThat(sut).isNotBlank();
     }
 
     @Test
@@ -87,8 +89,11 @@ public class JwtUserDetailsServiceTest {
         final User validUser = mockValidUser();
         final String roleName = validUser.getRole().name().substring("ROLE_".length());
 
-        var accessToken = service.createAccessToken(validUser.getEmail(), roleName).getAccessToken();
-        var sut = service.resolveToken(accessToken);
+        final Date now = new Date();
+        final Date expiration = new Date(now.getTime() + 120000);
+
+        var accessToken = JwtUserDetailsService.createAccessToken(now, expiration, validUser.getEmail(), roleName);
+        var sut = JwtUserDetailsService.resolveAccessToken(accessToken);
 
         assertThat(sut).isNotNull();
         assertThat(sut.getPayload()).isNotNull();

@@ -59,14 +59,15 @@ public class UserControllerWithAuthTest {
         sutUser.setId(1L);
 
         when(service.findUserById(1L)).thenReturn(sutUser);
-        final UserResponseDTO responseBody = sutUser.toDTO();
+        when(service.findAddressByCep(anyString())).thenReturn(mockAddressResponseDTO());
+        final UserResponseDTO validResponseBody = mockUserResponseDTO(sutUser, mockAddressResponseDTO());
 
         mockMvc.perform(
                         get("/v1/users/{id}", 1L)
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(responseBody)));
+                .andExpect(content().json(objectMapper.writeValueAsString(validResponseBody)));
 
         verify(service, times(1)).findUserById(1L);
     }
@@ -155,8 +156,8 @@ public class UserControllerWithAuthTest {
         final User sutUser = mockValidUser();
         sutUser.setId(1L);
 
-        when(service.updateUser(eq(1L), any())).thenReturn(sutUser);
-        final UserResponseDTO responseBody = sutUser.toDTO();
+        final UserResponseDTO validResponseBody = mockUserResponseDTO(sutUser, mockAddressResponseDTO());
+        when(service.updateUser(eq(1L), any())).thenReturn(validResponseBody);
 
         mockMvc.perform(
                         put("/v1/users/{id}", 1L)
@@ -165,7 +166,7 @@ public class UserControllerWithAuthTest {
                                 .with(csrf().asHeader())
                 )
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(responseBody)));
+                .andExpect(content().json(objectMapper.writeValueAsString(validResponseBody)));
     }
 
     @Test

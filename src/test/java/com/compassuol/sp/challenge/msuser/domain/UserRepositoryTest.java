@@ -1,10 +1,8 @@
 package com.compassuol.sp.challenge.msuser.domain;
 
 import com.compassuol.sp.challenge.msuser.domain.enums.UserRole;
-import com.compassuol.sp.challenge.msuser.domain.model.Address;
 import com.compassuol.sp.challenge.msuser.domain.model.User;
 import com.compassuol.sp.challenge.msuser.domain.repository.UserRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -13,7 +11,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Optional;
 
-import static com.compassuol.sp.challenge.msuser.common.UserConstants.VALID_ADDRESS;
 import static com.compassuol.sp.challenge.msuser.common.UserUtils.mockValidUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,18 +22,10 @@ public class UserRepositoryTest {
     @Autowired
     private TestEntityManager testEntityManager;
 
-    @AfterEach
-    public void afterEach() {
-        VALID_ADDRESS.setId(null);
-    }
-
     @Test
     public void findUserByEmail_WithExistingUser_ReturnsUser() {
-        final User user = mockValidUser(VALID_ADDRESS);
+        final User user = mockValidUser();
         user.setId(null);
-
-        final Address savedAddress = testEntityManager.persistFlushFind(VALID_ADDRESS);
-        user.setAddress(savedAddress);
 
         final User savedUser = testEntityManager.persistFlushFind(user);
         final Optional<User> sutUser = repository.findByEmail(user.getEmail());
@@ -44,8 +33,6 @@ public class UserRepositoryTest {
         assertThat(sutUser).isNotEmpty();
         assertThat(sutUser.get().getId()).isEqualTo(savedUser.getId());
         assertThat(sutUser.get().getEmail()).isEqualTo(savedUser.getEmail());
-        assertThat(sutUser.get().getAddress().getId()).isEqualTo(savedUser.getAddress().getId());
-        assertThat(sutUser.get().getAddress().getCep()).isEqualTo(savedUser.getAddress().getCep());
     }
 
     @Test
@@ -56,11 +43,8 @@ public class UserRepositoryTest {
 
     @Test
     public void findUserRoleByEmail_WithExistingUser_ReturnsUserRole() {
-        final User user = mockValidUser(VALID_ADDRESS);
+        final User user = mockValidUser();
         user.setId(null);
-
-        final Address savedAddress = testEntityManager.persistFlushFind(VALID_ADDRESS);
-        user.setAddress(savedAddress);
 
         final User savedUser = testEntityManager.persistFlushFind(user);
         final Optional<UserRole> sutUserRole = repository.findUserRoleByEmail(user.getEmail());

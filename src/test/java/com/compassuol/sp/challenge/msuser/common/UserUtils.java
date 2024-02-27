@@ -1,7 +1,6 @@
 package com.compassuol.sp.challenge.msuser.common;
 
 import com.compassuol.sp.challenge.msuser.domain.enums.UserRole;
-import com.compassuol.sp.challenge.msuser.domain.model.Address;
 import com.compassuol.sp.challenge.msuser.domain.model.User;
 import com.compassuol.sp.challenge.msuser.web.dto.*;
 import lombok.AccessLevel;
@@ -9,37 +8,22 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-import static com.compassuol.sp.challenge.msuser.common.UserConstants.EXISTING_ADDRESS;
 import static com.compassuol.sp.challenge.msuser.common.UserConstants.VALID_PASSWORD;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserUtils {
     public static User mockValidUser() {
-        return mockValidUser(EXISTING_ADDRESS);
-    }
-
-    public static User mockValidUser(Address address) {
         return User.builder()
                 .firstName("John")
                 .lastName("Doe")
                 .cpf("946.801.800-80")
                 .birthDate(LocalDate.of(1990, 1, 1))
                 .email("john@hotmail.com")
-                .address(address)
+                .cep("01001-000")
                 .password(VALID_PASSWORD)
                 .active(true)
                 .role(UserRole.ROLE_USER)
                 .build();
-    }
-
-    public static AddressResponseDTO mockAddressResponseDTO(Address address) {
-        return new AddressResponseDTO(
-                address.getStreet(),
-                address.getNumber(),
-                address.getComplement(),
-                address.getCity(),
-                address.getState(),
-                address.getCep());
     }
 
     public static UserCreateRequestDTO mockCreateUserRequestDTO(User user) {
@@ -49,10 +33,7 @@ public class UserUtils {
                 user.getCpf(),
                 user.getBirthDate(),
                 user.getEmail(),
-                new AddressCreateRequestDTO(
-                        user.getAddress().getNumber(),
-                        user.getAddress().getComplement(),
-                        user.getAddress().getCep()),
+                user.getCep(),
                 user.getPassword(),
                 user.getActive());
     }
@@ -64,6 +45,23 @@ public class UserUtils {
                 user.getCpf(),
                 user.getBirthDate(),
                 user.getEmail(),
+                user.getCep(),
+                user.getActive());
+    }
+
+    public static AddressResponseDTO mockAddressResponseDTO() {
+        return new AddressResponseDTO("Praça da Sé", "São Paulo", "SP", "01001-000");
+    }
+
+    public static UserResponseDTO mockUserResponseDTO(User user, AddressResponseDTO address) {
+        return new UserResponseDTO(
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getCpf(),
+                user.getBirthDate(),
+                user.getEmail(),
+                address,
                 user.getActive());
     }
 
@@ -78,7 +76,7 @@ public class UserUtils {
                 .cpf("123-456-78901")
                 .birthDate(LocalDate.of(1990, 1, 1))
                 .email("@hotmail.com")
-                .address(EXISTING_ADDRESS)
+                .cep("01001-000")
                 .password("123456")
                 .active(true)
                 .role(UserRole.ROLE_USER)

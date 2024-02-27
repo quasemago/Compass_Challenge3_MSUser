@@ -55,8 +55,8 @@ public class UserControllerTest {
         final User sutUser = mockValidUser();
         sutUser.setPassword("123456");
 
-        when(service.createUser(any())).thenReturn(sutUser);
-        final UserResponseDTO responseBody = sutUser.toDTO();
+        final UserResponseDTO validResponseBody = mockUserResponseDTO(sutUser, mockAddressResponseDTO());
+        when(service.createUser(any())).thenReturn(validResponseBody);
 
         mockMvc.perform(
                         post("/v1/users")
@@ -64,7 +64,7 @@ public class UserControllerTest {
                                 .content(objectMapper.writeValueAsString(mockCreateUserRequestDTO(sutUser)))
                 )
                 .andExpect(status().isCreated())
-                .andExpect(content().json(objectMapper.writeValueAsString(responseBody)));
+                .andExpect(content().json(objectMapper.writeValueAsString(validResponseBody)));
 
         verify(service, times(1)).createUser(any());
     }

@@ -12,6 +12,7 @@ import com.compassuol.sp.challenge.msuser.infra.openfeign.client.AddressClientCo
 import com.compassuol.sp.challenge.msuser.infra.openfeign.exception.AddressBadRequestException;
 import com.compassuol.sp.challenge.msuser.web.dto.AddressResponseDTO;
 import com.compassuol.sp.challenge.msuser.web.dto.UserCreateRequestDTO;
+import com.compassuol.sp.challenge.msuser.web.dto.UserResponseDTO;
 import com.compassuol.sp.challenge.msuser.web.dto.UserUpdateRequestDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import feign.FeignException;
@@ -33,7 +34,7 @@ public class UserService {
     private final AddressClientConsumer addressConsumer;
     private final UserRequestNotificationPublisher notificationPublisher;
 
-    private AddressResponseDTO getAddress(String cep) {
+    public AddressResponseDTO findAddressByCep(String cep) {
         try {
             final Date issuedAt = new Date();
             final Date expiration = new Date(issuedAt.getTime() + 120000);
@@ -48,11 +49,9 @@ public class UserService {
     }
 
     @Transactional
-    public User createUser(UserCreateRequestDTO request) {
+    public UserResponseDTO createUser(UserCreateRequestDTO request) {
         try {
-            AddressResponseDTO address = getAddress(request.getAddress().getCep());
-            address.setNumber(request.getAddress().getNumber());
-            address.setComplement(request.getAddress().getComplement());
+            final AddressResponseDTO address = findAddressByCep(request.getCep());
 
             final User user = new User();
             user.setFirstName(request.getFirstName());
@@ -60,14 +59,14 @@ public class UserService {
             user.setCpf(request.getCpf());
             user.setBirthDate(request.getBirthDate());
             user.setEmail(request.getEmail());
-            user.setAddress(address.toModel());
+            user.setCep(request.getCep());
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             user.setActive(request.getActive());
 
             final User createdUser = repository.save(user);
             notificationPublisher.sendNotification(createdUser.getEmail(), EventType.CREATE);
 
-            return createdUser;
+            return UserResponseDTO.toDTO(createdUser, address);
         } catch (DataIntegrityViolationException ex) {
             throw new UserDataIntegrityViolationException("Já existe um usuário com o e-mail ou CPF informado.");
         } catch (JsonProcessingException ex) {
@@ -82,21 +81,24 @@ public class UserService {
     }
 
     @Transactional()
-    public User updateUser(Long id, UserUpdateRequestDTO request) {
+    public UserResponseDTO updateUser(Long id, UserUpdateRequestDTO request) {
         final User user = findUserById(id);
 
         try {
+            final AddressResponseDTO address = findAddressByCep(request.getCep());
+
             user.setFirstName(request.getFirstName());
             user.setLastName(request.getLastName());
             user.setCpf(request.getCpf());
             user.setBirthDate(request.getBirthDate());
             user.setEmail(request.getEmail());
+            user.setCep(request.getCep());
             user.setActive(request.getActive());
 
             final User updatedUser = repository.saveAndFlush(user);
             notificationPublisher.sendNotification(updatedUser.getEmail(), EventType.UPDATE);
 
-            return updatedUser;
+            return UserResponseDTO.toDTO(updatedUser, address);
         } catch (DataIntegrityViolationException ex) {
             throw new UserDataIntegrityViolationException("Já existe um usuário com o e-mail ou CPF informado.");
         } catch (JsonProcessingException ex) {

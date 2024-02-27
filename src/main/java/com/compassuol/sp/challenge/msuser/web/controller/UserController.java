@@ -1,5 +1,6 @@
 package com.compassuol.sp.challenge.msuser.web.controller;
 
+import com.compassuol.sp.challenge.msuser.domain.model.User;
 import com.compassuol.sp.challenge.msuser.domain.service.UserService;
 import com.compassuol.sp.challenge.msuser.web.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,7 +40,7 @@ public class UserController {
     )
     @PostMapping
     public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserCreateRequestDTO request) {
-        final UserResponseDTO response = service.createUser(request).toDTO();
+        final UserResponseDTO response = service.createUser(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
@@ -64,10 +65,11 @@ public class UserController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDTO> findUserById(@PathVariable("id") Long id) {
-        final UserResponseDTO response = service.findUserById(id).toDTO();
+        final User user = service.findUserById(id);
+        final AddressResponseDTO address = service.findAddressByCep(user.getCep());
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(response);
+                .body(UserResponseDTO.toDTO(user, address));
     }
 
     @Operation(summary = "Atualizar um usuário existente",
@@ -94,7 +96,7 @@ public class UserController {
     public ResponseEntity<UserResponseDTO> updateUser(
             @PathVariable("id") Long id,
             @Valid @RequestBody UserUpdateRequestDTO request) {
-        final UserResponseDTO response = service.updateUser(id, request).toDTO();
+        final UserResponseDTO response = service.updateUser(id, request);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);

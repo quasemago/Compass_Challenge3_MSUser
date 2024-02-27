@@ -13,6 +13,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import static com.compassuol.sp.challenge.msuser.security.jwt.service.JwtUserDetailsService.resolveAccessToken;
+
 public class JwtTokenFilter extends OncePerRequestFilter {
     @Autowired
     private JwtUserDetailsService userDetailsService;
@@ -23,7 +25,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         final String authorizationHeader = request.getHeader("Authorization");
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            final var tokenRequest = userDetailsService.resolveToken(
+            final var tokenRequest = resolveAccessToken(
                     authorizationHeader.substring(7));
 
             if (tokenRequest != null) {

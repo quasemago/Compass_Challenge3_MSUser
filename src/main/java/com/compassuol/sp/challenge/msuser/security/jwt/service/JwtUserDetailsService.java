@@ -36,7 +36,7 @@ public class JwtUserDetailsService implements UserDetailsService {
     private long EXPIRE_LENGTH = 3600000;
 
     @Setter
-    private SecretKey encryptedSecretKey;
+    private static SecretKey encryptedSecretKey;
 
     @PostConstruct
     private void setup() {
@@ -49,34 +49,37 @@ public class JwtUserDetailsService implements UserDetailsService {
         return new JwtUserDetails(user);
     }
 
-    public JwtTokenDTO getTokenAuthenticated(String email) {
-        final UserRole role = userService.findRoleByEmail(email);
-        return createAccessToken(email, role.name().substring("ROLE_".length()));
-    }
-
     public UsernamePasswordAuthenticationToken getAuthorizationToken(String subject) {
         final UserDetails userDetails = loadUserByUsername(subject);
         return UsernamePasswordAuthenticationToken
                 .authenticated(userDetails, null, userDetails.getAuthorities());
     }
 
-    public JwtTokenDTO createAccessToken(String email, String role) {
+    public JwtTokenDTO getTokenAuthenticated(String subject) {
+        final UserRole role = userService.findRoleByEmail(subject);
         final Date issuedAt = new Date();
         final Date expiration = new Date(issuedAt.getTime() + EXPIRE_LENGTH);
-        final String jwtToken = Jwts.builder()
+        final String jwtToken = createAccessToken(issuedAt, expiration, subject, role.name().substring("ROLE_".length()));
+        return new JwtTokenDTO(subject, issuedAt, expiration, jwtToken);
+    }
+
+    public static String createAccessToken(Date issuedAt,
+                                           Date expiration,
+                                           String subject,
+                                           String role) {
+        return Jwts.builder()
                 .header()
                 .add("typ", "JWT")
                 .and()
-                .subject(email)
+                .subject(subject)
                 .issuedAt(issuedAt)
                 .expiration(expiration)
                 .signWith(encryptedSecretKey)
                 .claim("role", role)
                 .compact();
-        return new JwtTokenDTO(email, issuedAt, expiration, jwtToken);
     }
 
-    public Jws<Claims> resolveToken(String token) throws JwtException {
+    public static Jws<Claims> resolveAccessToken(String token) throws JwtException {
         return Jwts.parser()
                 .verifyWith(encryptedSecretKey)
                 .build()

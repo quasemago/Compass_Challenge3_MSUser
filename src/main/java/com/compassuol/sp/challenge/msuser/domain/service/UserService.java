@@ -21,6 +21,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
+
+import static com.compassuol.sp.challenge.msuser.security.jwt.service.JwtUserDetailsService.createAccessToken;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -29,21 +33,24 @@ public class UserService {
     private final AddressClientConsumer addressConsumer;
     private final UserRequestNotificationPublisher notificationPublisher;
 
+    private AddressResponseDTO getAddress(String cep) {
+        try {
+            final Date issuedAt = new Date();
+            final Date expiration = new Date(issuedAt.getTime() + 120000);
+            final String jwtToken = createAccessToken(issuedAt, expiration, "MSUserCompass", "USER");
+            return addressConsumer.getAddressByCep(cep, "Bearer " + jwtToken);
+        } catch (FeignException ex) {
+            if (ex instanceof FeignException.NotFound) {
+                throw new AddressBadRequestException("O CEP do endereço informado não foi encontrado!");
+            }
+            throw new AddressBadRequestException("Não foi possível processar o CEP do endereço informado! " + ex.getMessage());
+        }
+    }
+
     @Transactional
     public User createUser(UserCreateRequestDTO request) {
         try {
-            AddressResponseDTO address;
-            try {
-                address = addressConsumer.getAddressByCep(request
-                        .getAddress()
-                        .getCep());
-            } catch (FeignException ex) {
-                if (ex instanceof FeignException.NotFound) {
-                    throw new AddressBadRequestException("O CEP do endereço informado não foi encontrado!");
-                }
-                throw new AddressBadRequestException("Não foi possível processar o CEP do endereço informado!");
-            }
-
+            AddressResponseDTO address = getAddress(request.getAddress().getCep());
             address.setNumber(request.getAddress().getNumber());
             address.setComplement(request.getAddress().getComplement());
 
@@ -77,13 +84,6 @@ public class UserService {
     @Transactional()
     public User updateUser(Long id, UserUpdateRequestDTO request) {
         final User user = findUserById(id);
-
-        if (user.getEmail().equals(request.getEmail())) {
-            throw new UserDataIntegrityViolationException("Seu e-email atual é o mesmo que você está tentando atualizar.");
-        }
-        if (user.getCpf().equals(request.getCpf())) {
-            throw new UserDataIntegrityViolationException("Seu CPF atual é o mesmo que você está tentando atualizar.");
-        }
 
         try {
             user.setFirstName(request.getFirstName());

@@ -1,8 +1,6 @@
 package com.compassuol.sp.challenge.msuser.domain.model;
 
 import com.compassuol.sp.challenge.msuser.domain.enums.UserRole;
-import com.compassuol.sp.challenge.msuser.web.dto.AddressResponseDTO;
-import com.compassuol.sp.challenge.msuser.web.dto.UserResponseDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
@@ -43,9 +41,8 @@ public class User implements Serializable {
     @Email(message = "Email precisa estar no formato correto.")
     private String email;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "address_id", nullable = false)
-    private Address address;
+    @Column(name = "cep", nullable = false)
+    private String cep;
 
     @Column(name = "password", nullable = false)
     private String password;
@@ -56,23 +53,4 @@ public class User implements Serializable {
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
     private UserRole role = UserRole.ROLE_USER;
-
-    public UserResponseDTO toDTO() {
-        return new UserResponseDTO(
-                this.id,
-                this.firstName,
-                this.lastName,
-                this.cpf,
-                this.birthDate,
-                this.email,
-                new AddressResponseDTO(
-                        this.address.getStreet(),
-                        this.address.getNumber(),
-                        this.address.getComplement(),
-                        this.address.getCity(),
-                        this.address.getState(),
-                        this.address.getCep()),
-                this.active
-        );
-    }
 }

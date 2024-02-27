@@ -1,9 +1,9 @@
 package com.compassuol.sp.challenge.msuser.web.dto;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,9 +29,9 @@ public class UserCreateRequestDTO {
     private LocalDate birthDate;
     @Email(message = "Email precisa estar no formato correto.")
     private String email;
-    @Valid
-    @NotNull
-    private AddressCreateRequestDTO address;
+    @NotBlank
+    @Pattern(regexp = "^[0-9]{5}-[0-9]{3}$", message = "O CEP deve conter 8 caracteres sendo apenas números no formato (00000-000).")
+    private String cep;
     @NotBlank
     @Length(min = 6, message = "A senha precisa ter pelo menos 6 caracteres.")
     private String password;

@@ -11,12 +11,15 @@ import com.compassuol.sp.challenge.msuser.infra.mqueue.exception.NotificationBad
 import com.compassuol.sp.challenge.msuser.infra.mqueue.publisher.UserRequestNotificationPublisher;
 import com.compassuol.sp.challenge.msuser.infra.openfeign.client.AddressClientConsumer;
 import com.compassuol.sp.challenge.msuser.infra.openfeign.exception.AddressBadRequestException;
+import com.compassuol.sp.challenge.msuser.security.jwt.service.JwtUserDetailsService;
+import com.compassuol.sp.challenge.msuser.web.dto.UserResponseDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import feign.FeignException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -52,14 +55,21 @@ public class UserServiceTest {
 
         when(repository.save(any(User.class))).thenReturn(validUser);
         when(addressConsumer.getAddressByCep(anyString(), anyString()))
-                .thenReturn(mockAddressResponseDTO(validUser.getAddress()));
+                .thenReturn(mockAddressResponseDTO());
         when(passwordEncoder.encode(anyString())).thenReturn(VALID_PASSWORD);
         doNothing().when(notificationPublisher).sendNotification(anyString(), eq(EventType.CREATE));
 
-        User sutUser = service.createUser(mockCreateUserRequestDTO(validUser));
 
-        assertThat(sutUser).isNotNull();
-        assertThat(sutUser).isEqualTo(validUser);
+        try (MockedStatic<JwtUserDetailsService> jwtUserDetailsService = mockStatic(JwtUserDetailsService.class)) {
+            jwtUserDetailsService.when(() -> JwtUserDetailsService.createAccessToken(any(), any(), anyString(), anyString()))
+                    .thenReturn("token");
+
+            UserResponseDTO sutUser = service.createUser(mockCreateUserRequestDTO(validUser));
+
+            assertThat(sutUser).isNotNull();
+            assertThat(sutUser.getId()).isEqualTo(validUser.getId());
+            assertThat(sutUser.getEmail()).isEqualTo(validUser.getEmail());
+        }
 
         verify(repository, times(1)).save(any(User.class));
         verify(addressConsumer, times(1)).getAddressByCep(anyString(), anyString());
@@ -68,16 +78,21 @@ public class UserServiceTest {
     }
 
     @Test
-    public void createUser_WithConflictData_ThrowsException() throws JsonProcessingException {
+    public void createUser_WithConflictData_ThrowsException() {
         final User sutUser = mockValidUser();
 
         when(repository.save(any(User.class))).thenThrow(DataIntegrityViolationException.class);
         when(addressConsumer.getAddressByCep(anyString(), anyString()))
-                .thenReturn(mockAddressResponseDTO(sutUser.getAddress()));
+                .thenReturn(mockAddressResponseDTO());
         when(passwordEncoder.encode(anyString())).thenReturn(VALID_PASSWORD);
 
-        assertThatThrownBy(() -> service.createUser(mockCreateUserRequestDTO(sutUser)))
-                .isInstanceOf(UserDataIntegrityViolationException.class);
+        try (MockedStatic<JwtUserDetailsService> jwtUserDetailsService = mockStatic(JwtUserDetailsService.class)) {
+            jwtUserDetailsService.when(() -> JwtUserDetailsService.createAccessToken(any(), any(), anyString(), anyString()))
+                    .thenReturn("token");
+
+            assertThatThrownBy(() -> service.createUser(mockCreateUserRequestDTO(sutUser)))
+                    .isInstanceOf(UserDataIntegrityViolationException.class);
+        }
 
         verify(repository, times(1)).save(any(User.class));
         verify(addressConsumer, times(1)).getAddressByCep(anyString(), anyString());
@@ -87,11 +102,17 @@ public class UserServiceTest {
     @Test
     public void createUser_WithNonExistingAddress_ThrowsException() {
         final User sutUser = mockValidUser();
-        sutUser.getAddress().setCep("00000-000");
+        sutUser.setCep("00000-000");
 
         when(addressConsumer.getAddressByCep(eq("00000-000"), anyString())).thenThrow(FeignException.NotFound.class);
-        assertThatThrownBy(() -> service.createUser(mockCreateUserRequestDTO(sutUser)))
-                .isInstanceOf(AddressBadRequestException.class);
+
+        try (MockedStatic<JwtUserDetailsService> jwtUserDetailsService = mockStatic(JwtUserDetailsService.class)) {
+            jwtUserDetailsService.when(() -> JwtUserDetailsService.createAccessToken(any(), any(), anyString(), anyString()))
+                    .thenReturn("token");
+
+            assertThatThrownBy(() -> service.createUser(mockCreateUserRequestDTO(sutUser)))
+                    .isInstanceOf(AddressBadRequestException.class);
+        }
 
         verify(addressConsumer, times(1)).getAddressByCep(eq("00000-000"), anyString());
     }
@@ -99,11 +120,17 @@ public class UserServiceTest {
     @Test
     public void createUser_WithInvalidAddressResponse_ThrowsException() {
         final User sutUser = mockValidUser();
-        sutUser.getAddress().setCep("00000-000");
+        sutUser.setCep("00000-000");
 
         when(addressConsumer.getAddressByCep(eq("00000-000"), anyString())).thenThrow(FeignException.class);
-        assertThatThrownBy(() -> service.createUser(mockCreateUserRequestDTO(sutUser)))
-                .isInstanceOf(AddressBadRequestException.class);
+
+        try (MockedStatic<JwtUserDetailsService> jwtUserDetailsService = mockStatic(JwtUserDetailsService.class)) {
+            jwtUserDetailsService.when(() -> JwtUserDetailsService.createAccessToken(any(), any(), anyString(), anyString()))
+                    .thenReturn("token");
+
+            assertThatThrownBy(() -> service.createUser(mockCreateUserRequestDTO(sutUser)))
+                    .isInstanceOf(AddressBadRequestException.class);
+        }
 
         verify(addressConsumer, times(1)).getAddressByCep(eq("00000-000"), anyString());
     }
@@ -122,12 +149,17 @@ public class UserServiceTest {
 
         when(repository.save(any(User.class))).thenReturn(sutUser);
         when(addressConsumer.getAddressByCep(anyString(), anyString()))
-                .thenReturn(mockAddressResponseDTO(sutUser.getAddress()));
+                .thenReturn(mockAddressResponseDTO());
         when(passwordEncoder.encode(anyString())).thenReturn(VALID_PASSWORD);
         doThrow(JsonProcessingException.class).when(notificationPublisher).sendNotification(anyString(), eq(EventType.CREATE));
 
-        assertThatThrownBy(() -> service.createUser(mockCreateUserRequestDTO(sutUser)))
-                .isInstanceOf(NotificationBadRequestException.class);
+        try (MockedStatic<JwtUserDetailsService> jwtUserDetailsService = mockStatic(JwtUserDetailsService.class)) {
+            jwtUserDetailsService.when(() -> JwtUserDetailsService.createAccessToken(any(), any(), anyString(), anyString()))
+                    .thenReturn("token");
+
+            assertThatThrownBy(() -> service.createUser(mockCreateUserRequestDTO(sutUser)))
+                    .isInstanceOf(NotificationBadRequestException.class);
+        }
 
         verify(repository, times(1)).save(any(User.class));
         verify(addressConsumer, times(1)).getAddressByCep(anyString(), anyString());
@@ -264,10 +296,16 @@ public class UserServiceTest {
         when(repository.saveAndFlush(any(User.class))).thenReturn(updatedUser);
         doNothing().when(notificationPublisher).sendNotification(anyString(), eq(EventType.UPDATE));
 
-        User sutUser = service.updateUser(1L, mockUserUpdateRequestDTO(updatedUser));
+        try (MockedStatic<JwtUserDetailsService> jwtUserDetailsService = mockStatic(JwtUserDetailsService.class)) {
+            jwtUserDetailsService.when(() -> JwtUserDetailsService.createAccessToken(any(), any(), anyString(), anyString()))
+                    .thenReturn("token");
 
-        assertThat(sutUser).isNotNull();
-        assertThat(sutUser).isEqualTo(updatedUser);
+            UserResponseDTO sutUser = service.updateUser(1L, mockUserUpdateRequestDTO(updatedUser));
+
+            assertThat(sutUser).isNotNull();
+            assertThat(sutUser.getId()).isEqualTo(updatedUser.getId());
+            assertThat(sutUser.getEmail()).isEqualTo(updatedUser.getEmail());
+        }
 
         verify(repository, times(1)).findById(1L);
         verify(repository, times(1)).saveAndFlush(any(User.class));
@@ -294,8 +332,13 @@ public class UserServiceTest {
         when(repository.findById(1L)).thenReturn(Optional.of(validUser));
         when(repository.saveAndFlush(any(User.class))).thenThrow(DataIntegrityViolationException.class);
 
-        assertThatThrownBy(() -> service.updateUser(1L, mockUserUpdateRequestDTO(updatedUser)))
-                .isInstanceOf(UserDataIntegrityViolationException.class);
+        try (MockedStatic<JwtUserDetailsService> jwtUserDetailsService = mockStatic(JwtUserDetailsService.class)) {
+            jwtUserDetailsService.when(() -> JwtUserDetailsService.createAccessToken(any(), any(), anyString(), anyString()))
+                    .thenReturn("token");
+
+            assertThatThrownBy(() -> service.updateUser(1L, mockUserUpdateRequestDTO(updatedUser)))
+                    .isInstanceOf(UserDataIntegrityViolationException.class);
+        }
 
         verify(repository, times(1)).findById(1L);
         verify(repository, times(1)).saveAndFlush(any(User.class));
@@ -313,8 +356,13 @@ public class UserServiceTest {
         when(repository.saveAndFlush(any(User.class))).thenReturn(updatedUser);
         doThrow(JsonProcessingException.class).when(notificationPublisher).sendNotification(anyString(), eq(EventType.UPDATE));
 
-        assertThatThrownBy(() -> service.updateUser(1L, mockUserUpdateRequestDTO(updatedUser)))
-                .isInstanceOf(NotificationBadRequestException.class);
+        try (MockedStatic<JwtUserDetailsService> jwtUserDetailsService = mockStatic(JwtUserDetailsService.class)) {
+            jwtUserDetailsService.when(() -> JwtUserDetailsService.createAccessToken(any(), any(), anyString(), anyString()))
+                    .thenReturn("token");
+
+            assertThatThrownBy(() -> service.updateUser(1L, mockUserUpdateRequestDTO(updatedUser)))
+                    .isInstanceOf(NotificationBadRequestException.class);
+        }
 
         verify(repository, times(1)).findById(1L);
         verify(repository, times(1)).saveAndFlush(any(User.class));

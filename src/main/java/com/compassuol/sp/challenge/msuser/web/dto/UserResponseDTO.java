@@ -1,5 +1,6 @@
 package com.compassuol.sp.challenge.msuser.web.dto;
 
+import com.compassuol.sp.challenge.msuser.domain.model.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,4 +19,17 @@ public class UserResponseDTO {
     private String email;
     private AddressResponseDTO address;
     private Boolean active;
+
+    public static UserResponseDTO toDTO(User user, AddressResponseDTO address) {
+        return new UserResponseDTO(
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getCpf(),
+                user.getBirthDate(),
+                user.getEmail(),
+                address,
+                user.getActive()
+        );
+    }
 }

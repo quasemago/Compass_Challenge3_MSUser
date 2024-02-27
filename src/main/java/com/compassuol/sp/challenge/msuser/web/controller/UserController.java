@@ -25,7 +25,6 @@ public class UserController {
     private final UserService service;
 
     @Operation(summary = "Criar um novo usuário", description = "Recurso para criar um novo usuário",
-            security = @SecurityRequirement(name = "Bearer Token Authentication"),
             responses = {
                     @ApiResponse(responseCode = "201", description = "Usuário cadastrado com sucesso.",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDTO.class))
@@ -48,7 +47,7 @@ public class UserController {
 
     @Operation(summary = "Recuperar informações de um usuário existente",
             description = "Recurso para recuperar um usuário existente através do Id.",
-            security = @SecurityRequirement(name = "Bearer Token Authentication"),
+            security = @SecurityRequirement(name = "BearerTokenAuthentication"),
             parameters = {
                     @Parameter(name = "id", description = "Identificador (Id) do usuário no banco de dados.",
                             in = ParameterIn.PATH, required = true)
@@ -74,7 +73,7 @@ public class UserController {
 
     @Operation(summary = "Atualizar um usuário existente",
             description = "Recurso para atualizar as informações de um usuário existente através do Id.",
-            security = @SecurityRequirement(name = "Bearer Token Authentication"),
+            security = @SecurityRequirement(name = "BearerTokenAuthentication"),
             parameters = {
                     @Parameter(name = "id", description = "Identificador (Id) do usuário no banco de dados.",
                             in = ParameterIn.PATH, required = true)
@@ -104,7 +103,7 @@ public class UserController {
 
     @Operation(summary = "Atualizar a senha de um usuário existente",
             description = "Recurso para atualizar a senha de um usuário existente através do Id.",
-            security = @SecurityRequirement(name = "Bearer Token Authentication"),
+            security = @SecurityRequirement(name = "BearerTokenAuthentication"),
             parameters = {
                     @Parameter(name = "id", description = "Identificador (Id) do usuário no banco de dados.",
                             in = ParameterIn.PATH, required = true)

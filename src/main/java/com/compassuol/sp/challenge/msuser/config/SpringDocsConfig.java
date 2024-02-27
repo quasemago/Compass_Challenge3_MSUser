@@ -15,10 +15,10 @@ public class SpringDocsConfig {
     public OpenAPI openAPI() {
         return new OpenAPI()
                 .addSecurityItem(new SecurityRequirement()
-                        .addList("Bearer Token Authentication")
+                        .addList("BearerTokenAuthentication")
                 )
                 .components(new Components()
-                        .addSecuritySchemes("Bearer Token Authentication", createSecurityScheme())
+                        .addSecuritySchemes("BearerTokenAuthentication", createSecurityScheme())
                 )
                 .info(new Info()
                         .title("CompassUOL - Challenge 3 - MS User API")
@@ -33,7 +33,7 @@ public class SpringDocsConfig {
 
     private SecurityScheme createSecurityScheme() {
         return new SecurityScheme()
-                .name("Bearer Token Authentication")
+                .name("BearerTokenAuthentication")
                 .description("Insira um Bearer Token para autenticação")
                 .type(SecurityScheme.Type.HTTP)
                 .bearerFormat("JWT")

@@ -41,8 +41,8 @@ public class User implements Serializable {
     @Email(message = "Email precisa estar no formato correto.")
     private String email;
 
-    @Column(name = "cep", nullable = false)
-    private String cep;
+    @Column(name = "address_id", nullable = false)
+    private Long addressId;
 
     @Column(name = "password", nullable = false)
     private String password;

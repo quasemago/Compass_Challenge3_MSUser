@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class AddressResponseDTO {
+    private Long id;
     private String street;
     private String city;
     private String state;

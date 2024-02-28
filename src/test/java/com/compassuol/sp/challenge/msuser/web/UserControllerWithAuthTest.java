@@ -59,7 +59,7 @@ public class UserControllerWithAuthTest {
         sutUser.setId(1L);
 
         when(service.findUserById(1L)).thenReturn(sutUser);
-        when(service.findAddressByCep(anyString())).thenReturn(mockAddressResponseDTO());
+        when(service.findOrCreateAddress(anyString())).thenReturn(mockAddressResponseDTO());
         final UserResponseDTO validResponseBody = mockUserResponseDTO(sutUser, mockAddressResponseDTO());
 
         mockMvc.perform(

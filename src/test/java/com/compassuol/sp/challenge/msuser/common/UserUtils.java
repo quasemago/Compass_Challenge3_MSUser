@@ -19,7 +19,7 @@ public class UserUtils {
                 .cpf("946.801.800-80")
                 .birthDate(LocalDate.of(1990, 1, 1))
                 .email("john@hotmail.com")
-                .cep("01001-000")
+                .addressId(1L)
                 .password(VALID_PASSWORD)
                 .active(true)
                 .role(UserRole.ROLE_USER)
@@ -33,7 +33,7 @@ public class UserUtils {
                 user.getCpf(),
                 user.getBirthDate(),
                 user.getEmail(),
-                user.getCep(),
+                "01001-000",
                 user.getPassword(),
                 user.getActive());
     }
@@ -45,12 +45,12 @@ public class UserUtils {
                 user.getCpf(),
                 user.getBirthDate(),
                 user.getEmail(),
-                user.getCep(),
+                "01001-000",
                 user.getActive());
     }
 
     public static AddressResponseDTO mockAddressResponseDTO() {
-        return new AddressResponseDTO("Praça da Sé", "São Paulo", "SP", "01001-000");
+        return new AddressResponseDTO(1L, "Praça da Sé", "São Paulo", "SP", "01001-000");
     }
 
     public static UserResponseDTO mockUserResponseDTO(User user, AddressResponseDTO address) {
@@ -76,7 +76,7 @@ public class UserUtils {
                 .cpf("123-456-78901")
                 .birthDate(LocalDate.of(1990, 1, 1))
                 .email("@hotmail.com")
-                .cep("01001-000")
+                .addressId(1L)
                 .password("123456")
                 .active(true)
                 .role(UserRole.ROLE_USER)

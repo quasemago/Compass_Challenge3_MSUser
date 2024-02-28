@@ -65,7 +65,7 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDTO> findUserById(@PathVariable("id") Long id) {
         final User user = service.findUserById(id);
-        final AddressResponseDTO address = service.findAddressByCep(user.getCep());
+        final AddressResponseDTO address = service.findOrCreateAddress(String.valueOf(user.getAddressId()));
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(UserResponseDTO.toDTO(user, address));

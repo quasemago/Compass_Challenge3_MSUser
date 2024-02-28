@@ -34,12 +34,12 @@ public class UserService {
     private final AddressClientConsumer addressConsumer;
     private final UserRequestNotificationPublisher notificationPublisher;
 
-    public AddressResponseDTO findAddressByCep(String cep) {
+    public AddressResponseDTO findOrCreateAddress(String value) {
         try {
             final Date issuedAt = new Date();
             final Date expiration = new Date(issuedAt.getTime() + 120000);
             final String jwtToken = createAccessToken(issuedAt, expiration, "MSUserCompass", "USER");
-            return addressConsumer.getAddressByCep(cep, "Bearer " + jwtToken);
+            return addressConsumer.getOrCreateAddress(value, "Bearer " + jwtToken);
         } catch (FeignException ex) {
             if (ex instanceof FeignException.NotFound) {
                 throw new AddressBadRequestException("O CEP do endereço informado não foi encontrado!");
@@ -51,7 +51,7 @@ public class UserService {
     @Transactional
     public UserResponseDTO createUser(UserCreateRequestDTO request) {
         try {
-            final AddressResponseDTO address = findAddressByCep(request.getCep());
+            final AddressResponseDTO address = findOrCreateAddress(request.getCep());
 
             final User user = new User();
             user.setFirstName(request.getFirstName());
@@ -59,7 +59,7 @@ public class UserService {
             user.setCpf(request.getCpf());
             user.setBirthDate(request.getBirthDate());
             user.setEmail(request.getEmail());
-            user.setCep(request.getCep());
+            user.setAddressId(address.getId());
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             user.setActive(request.getActive());
 
@@ -85,14 +85,14 @@ public class UserService {
         final User user = findUserById(id);
 
         try {
-            final AddressResponseDTO address = findAddressByCep(request.getCep());
+            final AddressResponseDTO address = findOrCreateAddress(request.getCep());
 
             user.setFirstName(request.getFirstName());
             user.setLastName(request.getLastName());
             user.setCpf(request.getCpf());
             user.setBirthDate(request.getBirthDate());
             user.setEmail(request.getEmail());
-            user.setCep(request.getCep());
+            user.setAddressId(address.getId());
             user.setActive(request.getActive());
 
             final User updatedUser = repository.saveAndFlush(user);

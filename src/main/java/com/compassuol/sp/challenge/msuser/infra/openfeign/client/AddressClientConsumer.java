@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 @FeignClient(name = "address-consumer", url = "${msaddress.api-url}")
 public interface AddressClientConsumer {
-    @GetMapping("/{cep}")
-    AddressResponseDTO getAddressByCep(@PathVariable("cep") String cep,
+    @GetMapping("/{value}")
+    AddressResponseDTO getOrCreateAddress(@PathVariable("value") String value,
                                        @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader);
 }

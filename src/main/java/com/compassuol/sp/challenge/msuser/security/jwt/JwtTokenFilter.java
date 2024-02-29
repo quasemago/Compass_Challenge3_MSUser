@@ -6,6 +6,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -15,6 +16,7 @@ import java.io.IOException;
 
 import static com.compassuol.sp.challenge.msuser.security.jwt.service.JwtUserDetailsService.resolveAccessToken;
 
+@Slf4j
 public class JwtTokenFilter extends OncePerRequestFilter {
     @Autowired
     private JwtUserDetailsService userDetailsService;
@@ -25,17 +27,21 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         final String authorizationHeader = request.getHeader("Authorization");
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            final var tokenRequest = resolveAccessToken(
-                    authorizationHeader.substring(7));
+            try {
+                final var tokenRequest = resolveAccessToken(
+                        authorizationHeader.substring(7));
 
-            if (tokenRequest != null) {
-                final String subject = tokenRequest.getPayload().getSubject();
-                final var authToken = userDetailsService.getAuthorizationToken(subject);
+                if (tokenRequest != null) {
+                    final String subject = tokenRequest.getPayload().getSubject();
+                    final var authToken = userDetailsService.getAuthorizationToken(subject);
 
-                if (authToken != null) {
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                    if (authToken != null) {
+                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                    }
                 }
+            } catch (JwtException ex) {
+                log.warn("Invalid or Expired JWT token: {}", ex.getMessage());
             }
         }
 

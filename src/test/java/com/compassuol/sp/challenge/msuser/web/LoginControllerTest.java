@@ -74,7 +74,7 @@ public class LoginControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(mockUserLoginRequestDTO()))
                 )
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isUnauthorized());
 
         verify(service, times(1)).login(any());
     }

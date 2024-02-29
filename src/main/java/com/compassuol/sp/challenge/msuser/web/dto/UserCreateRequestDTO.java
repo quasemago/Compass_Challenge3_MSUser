@@ -18,8 +18,10 @@ import java.time.LocalDate;
 @Getter
 public class UserCreateRequestDTO {
     @NotBlank
+    @Length(min = 3, message = "Esse campo precisa ter pelo menos 3 caracteres.")
     private String firstName;
     @NotBlank
+    @Length(min = 3, message = "Esse campo precisa ter pelo menos 3 caracteres.")
     private String lastName;
     @CPF(message = "CPF precisa ser válido e estar no formato correto. (xxx-xxx-xxx.xx)")
     @Length(min = 14, max = 14, message = "O CPF precisa ter 14 caracteres.")

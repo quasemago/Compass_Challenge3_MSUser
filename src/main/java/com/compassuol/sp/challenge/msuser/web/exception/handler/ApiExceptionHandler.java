@@ -43,9 +43,9 @@ public class ApiExceptionHandler {
     @ExceptionHandler(JwtAuthenticationException.class)
     public ResponseEntity<ErrorMessageDTO> handleJwtAuthenticationException(JwtAuthenticationException ex) {
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(HttpStatus.UNAUTHORIZED)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new ErrorMessageDTO(HttpStatus.BAD_REQUEST, ex.getMessage()));
+                .body(new ErrorMessageDTO(HttpStatus.UNAUTHORIZED, ex.getMessage()));
     }
 
     @ExceptionHandler(AddressBadRequestException.class)

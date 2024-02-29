@@ -65,10 +65,10 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorMessageDTO> handleGenericException(Exception ex) {
+    public ResponseEntity<ErrorMessageDTO> handleGenericException() {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new ErrorMessageDTO(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage()));
+                .body(new ErrorMessageDTO(HttpStatus.INTERNAL_SERVER_ERROR, "Ocorreu um erro inesperado."));
     }
 }

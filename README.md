@@ -28,14 +28,16 @@ O projeto foi desenvolvido por **Bruno Patrick Formehl Ronning**.
     - [Payloads](#payloads)
     - [Fluxo de erros](#fluxo-de-erros)
   - [Como executar o projeto](#como-executar-o-projeto)
-      - [Requisitos](#requisitos)
-      - [Pré-configurações](#pré-configurações)
-      - [Executando o projeto (Terminal)](#executando-o-projeto-terminal)
-          - [Projeto em execução](#projeto-em-execução)
-      - [Coleção do Postman e Arquivo Swagger](#coleção-do-postman-e-arquivo-swagger)
-          - [Coleção Postman](#coleção-postman)
-          - [Arquivo Swagger](#arquivo-swagger)
+    - [Requisitos](#requisitos)
+    - [Pré-configurações](#pré-configurações)
+    - [Executando o projeto (Terminal)](#executando-o-projeto-terminal)
+        - [Projeto em execução](#projeto-em-execução)
+    - [Coleção do Postman e Arquivo Swagger](#coleção-do-postman-e-arquivo-swagger)
+        - [Coleção Postman](#coleção-postman)
+        - [Arquivo Swagger](#arquivo-swagger)
   - [Considerações Finais](#considerações-finais)
+    - [Amazon AWS](#amazon-aws)
+    - [Agradecimentos](#agradecimentos)
 
 ## Tecnologias Utilizadas
 - Java JDK 17
@@ -264,6 +266,25 @@ Ademais, foi gerado um arquivo em JSON do Swagger da API, que pode ser baixado a
 
 ---
 # Considerações Finais
+
+### Amazon AWS
+Durante o desenvolvimento do projeto, foi necessário realizar testes em um ambiente real, para garantir que a integração entre os microsserviços funcionasse corretamente, visto que até o momento tudo estava sendo testado de forma local.
+Para isso, a abordagem utilizada foi hospedar cada microsserviço em uma instância do Amazon AWS EC2, e então realizar as requisições entre os microsserviços, simulando um ambiente real de produção.
+
+Os microsserviços foram escalados da seguinte forma:
+
+| **Microsserviço** | **Abordagem**                                                                                                                                                                                    |
+|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| MSUser            | Hospedado em uma instância do AWS EC2, utilizando um banco de dados MySQL local hospedado na própria instância.                                                                                  |
+| MSAddress         | Hospedado em uma instância do AWS EC2, utilizando um banco de dados MySQL através do serviço RDS da AWS, proporcionando maior escalabilidade e disponibilidade.                                  |
+| MSNotification    | Hospedado em uma instância do AWS EC2, utilizando um banco de dados MongoDB hospedado na própria instância. Além disso, o serviço de mensageria RabbitMQ também ficou hospedado nessa instância. |
+
+Portanto, no final dos testes em um ambiente real de produção, foi possível observar que a integração entre os microsserviços funcionou corretamente, e que tudo estava funcionando corretamente, atendendo a todos os requisitos propostos.
+
+Essa etapa no desenvolvimento foi muito relevante, pois contribuiu para o aprendizado de como é o processo de deploy de um projeto em um ambiente real, mesmo que tenha sido feito de forma manual e não automatizada.
+Pois foi necessário configurar as instâncias, instalar as dependências, configurar o banco de dados, configurar o firewall para comunicação entre os serviços, entre outras configurações, evidenciando as dificuldades e desafios que podem ser encontrados em um ambiente real.
+
+### Agradecimentos
 O terceiro desafio (Challenge 3) do programa de bolsas de estágio da Compass UOL | Back-end Journey (Spring Boot) - AWS Cloud Context, representou uma grande oportunidade de aprendizado para aplicar os conhecimentos adquiridos até o momento no programa.
 
 Ao utilizar tecnologias como Spring Boot, Swagger e JUnit e Mockito, foi possível criar uma API robusta, testada e bem documentada, seguindo boas práticas de desenvolvimento, garantindo assim a qualidade do projeto, além de facilitar o uso da API por parte de outros desenvolvedores.

@@ -3,11 +3,11 @@ O projeto consiste no desenvolvimento de uma API REST para um sistema de gerenci
 
 O projeto foi organizado em formato de microsserviços, onde cada microsserviço é responsável por uma parte do sistema. Segue os microsserviços desenvolvidos e a funcionalidade de cada um:
 
-| **Microsserviço** | **Funcionalidade**                                                                                                                                                                                                  |
-|-------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [MSUser](https://github.com/quasemago/Compass_Challenge3_MSUser)            | É responsável por armazenar e gerenciar os dados dos usuários, sendo integrado ao MSAddress e MSNotification.                                                                                                       |
-| [MSAddress](https://github.com/quasemago/Compass_Challenge3_MSAddress)         | Encapsula a API ViaCEP e fornece um endpoint para consulta de endereço, tanto por CEP quanto por Id. Caso esse CEP não exista na base dados, consome a API ViaCEP e persiste o endereço para consultas posteriores. |
-| [MSNotification](https://github.com/quasemago/Compass_Challenge3_MSNotification)    | Recebe notificações de eventos por parte dos usuários (MSUser), sendo eventos de CREATE, UPDATE, UPDATE_PASSWORD e LOGIN. Armazena essas notificações de eventos em um banco de dados NoSQL MongoDB.                |
+| **Microsserviço**                                                                | **Funcionalidade**                                                                                                         |
+|----------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| [MSUser](https://github.com/quasemago/Compass_Challenge3_MSUser)                 | É responsável por armazenar e gerenciar os dados dos usuários, sendo integrado ao MSAddress e MSNotification.              |
+| [MSAddress](https://github.com/quasemago/Compass_Challenge3_MSAddress)           | Encapsula a API ViaCEP e fornece um endpoint para consulta de endereço, tanto por CEP quanto por Id.                       |
+| [MSNotification](https://github.com/quasemago/Compass_Challenge3_MSNotification) | Recebe e armazena notificações de eventos por parte dos usuários (MSUser), sendo eventos de cadastro, atualização e login. |
 
 ### Autor do Projeto
 O projeto foi desenvolvido por **Bruno Patrick Formehl Ronning**.

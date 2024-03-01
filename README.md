@@ -71,7 +71,7 @@ O MSUser utiliza o banco de dados MySQL, e a estrutura do mesmo é composta por 
 
 ![image](msuser_db.png)
 
-### Regras de negócio
+### Regras de Negócio
 - Os campos `firstName` e `lastName` precisam ter no mínimo 3 caracteres.
 - O campo `email` precisa estar no formato de um email válido e não deve permitir emails duplicados.
 - O campo `cpf` precisa seguir o seguinte padrão e não pode ser duplicado (xxx-xxx-xxx.xx).
@@ -272,4 +272,4 @@ Portanto, é importante destacar que esse desafio foi de grande importância, po
 
 Agradeço à Compass UOL pela oportunidade de participar do programa de bolsas de estágio, e por proporcionar desafios que contribuem para o meu crescimento profissional.
 
-Atencionamente, [Bruno Patrick Formehl Ronning](#autor-do-projeto).
+Atenciosamente, [Bruno Patrick Formehl Ronning](#autor-do-projeto).
